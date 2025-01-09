@@ -1,45 +1,77 @@
 {% extends "base.html" %}
+{% load form_tags %}
 
 {% block title %}Añadir Transacción{% endblock %}
 
 {% block content %}
-<div class="container mx-auto py-6">
-    <h1 class="text-2xl font-bold mb-4">Añadir Transacción</h1>
-    <form method="post" class="bg-white shadow-md rounded px-8 pt-6 pb-8">
-        {% csrf_token %}
-        <div class="space-y-4">
-            <div>
-                <label for="id_type" class="block text-sm font-medium text-gray-700">Tipo de Transacción</label>
-                {{ form.type }}
-            </div>
-            <div>
-                <label for="id_category" class="block text-sm font-medium text-gray-700">Categoría</label>
-                {{ form.category }}
-            </div>
-            <div>
-                <label for="id_amount" class="block text-sm font-medium text-gray-700">Monto</label>
-                {{ form.amount }}
-            </div>
-            <div>
-                <label for="id_description" class="block text-sm font-medium text-gray-700">Descripción</label>
-                {{ form.description }}
-            </div>
-            <div>
-                <label for="id_date" class="block text-sm font-medium text-gray-700">Fecha</label>
-                {{ form.date }}
-            </div>
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h1 class="text-2xl font-bold text-gray-800">
+                <i class="fas fa-plus-circle mr-2 text-emerald-600"></i>
+                Añadir Transacción
+            </h1>
         </div>
-        <div class="mt-4 flex justify-between items-center">
-            <button type="submit" 
-                    class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
-                Guardar
-            </button>
-            <a href="{% url 'transaction_list' %}" 
-               class="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded">
-                Volver al Inicio
-            </a>
-        </div>
-    </form>
+        
+        <form method="post" class="p-6 space-y-6">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="id_type" class="block text-sm font-medium text-gray-700 mb-1">
+                        Tipo de Transacción
+                    </label>
+                    {{ form.type|add_class:"w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500" }}
+                </div>
+                
+                <div>
+                    <label for="id_category" class="block text-sm font-medium text-gray-700 mb-1">
+                        Categoría
+                    </label>
+                    {{ form.category|add_class:"w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500" }}
+                </div>
+                
+                <div>
+                    <label for="id_amount" class="block text-sm font-medium text-gray-700 mb-1">
+                        Monto
+                    </label>
+                    <div class="relative rounded-lg shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">₲</span>
+                        </div>
+                        {{ form.amount|add_class:"pl-7 w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500" }}
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="id_date" class="block text-sm font-medium text-gray-700 mb-1">
+                        Fecha
+                    </label>
+                    {{ form.date|add_class:"w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500" }}
+                </div>
+            </div>
+            
+            <div>
+                <label for="id_description" class="block text-sm font-medium text-gray-700 mb-1">
+                    Descripción
+                </label>
+                {{ form.description|add_class:"w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500" }}
+            </div>
+
+            <div class="flex items-center justify-end space-x-4 pt-4 border-t border-gray-200">
+                <a href="{% url 'transaction_list' %}" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Volver
+                </a>
+                <button type="submit" 
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
+                    <i class="fas fa-save mr-2"></i>
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}
 

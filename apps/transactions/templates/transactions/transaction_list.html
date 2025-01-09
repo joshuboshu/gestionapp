@@ -3,14 +3,75 @@
 {% block title %}Lista de Transacciones{% endblock %}
 
 {% block content %}
-<div class="container mx-auto py-6">
-    <h1 class="text-2xl font-bold mb-4">Transacciones</h1>
-    <a href="{% url 'transaction_add' %}" 
-       class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
-        Añadir Transacción
-    </a>
+<div class="space-y-6">
+    <!-- Encabezado con estadísticas -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-100 text-green-600">
+                    <i class="fas fa-arrow-up text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Ingresos Totales</p>
+                    <h3 class="text-xl font-bold text-gray-900">$2,500.00</h3>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-red-100 text-red-600">
+                    <i class="fas fa-arrow-down text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Gastos Totales</p>
+                    <h3 class="text-xl font-bold text-gray-900">$1,800.00</h3>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                    <i class="fas fa-wallet text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Balance</p>
+                    <h3 class="text-xl font-bold text-gray-900">$700.00</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra de acciones -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 class="text-2xl font-bold text-gray-900">
+            <i class="fas fa-list-ul mr-2 text-emerald-600"></i>
+            Transacciones
+        </h1>
+        
+        <div class="flex items-center space-x-4">
+            <div class="relative">
+                <input type="text" 
+                       placeholder="Buscar transacciones..." 
+                       class="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400"></i>
+                </div>
+            </div>
+            
+            <a href="{% url 'transaction_add' %}" 
+               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
+                <i class="fas fa-plus mr-2"></i>
+                Añadir Transacción
+            </a>
+        </div>
+    </div>
+
+    <!-- Lista de transacciones -->
     <div id="transaction-list" hx-get="{% url 'transaction_list' %}" hx-trigger="load">
         {% include 'transactions/transaction_table.html' %}
     </div>
 </div>
 {% endblock %}
+
