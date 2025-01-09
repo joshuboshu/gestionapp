@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Lista de Transacciones{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-6">
+    <h1 class="text-2xl font-bold mb-4">Transacciones</h1>
+    <a href="{% url 'transaction_add' %}" 
+       class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+        Añadir Transacción
+    </a>
+    <div id="transaction-list" hx-get="{% url 'transaction_list' %}" hx-trigger="load">
+        {% include 'transactions/transaction_table.html' %}
+    </div>
+</div>
+{% endblock %}
