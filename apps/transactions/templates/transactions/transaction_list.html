@@ -69,9 +69,40 @@
     </div>
 
     <!-- Lista de transacciones -->
-    <div id="transaction-list" hx-get="{% url 'transaction_list' %}" hx-trigger="load">
+    <div id="transaction-list" hx-get="{% url 'transaction_list' %}" hx-trigger="load once" hx-target="#transaction-table">
         {% include 'transactions/transaction_table.html' %}
     </div>
 </div>
+
+<canvas id="monthlyTrends" width="400" height="200"></canvas>
+<script>
+    const ctx = document.getElementById('monthlyTrends').getContext('2d');
+    const data = {{ historical_data|safe }};
+    const labels = data.map(item => `${item.year}-${item.month}`);
+    const incomeData = data.map(item => item.total_income);
+    const expenseData = data.map(item => item.total_expense);
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Ingresos',
+                    data: incomeData,
+                    borderColor: 'green',
+                    fill: false,
+                },
+                {
+                    label: 'Gastos',
+                    data: expenseData,
+                    borderColor: 'red',
+                    fill: false,
+                },
+            ],
+        },
+    });
+</script>
+
 {% endblock %}
 

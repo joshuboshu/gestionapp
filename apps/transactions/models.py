@@ -60,3 +60,25 @@ class Transaction(models.Model):
             "income - 1500.00 (Salary)"
         """
         return f"{self.type} - {self.amount} ({self.category})"
+
+class MonthlySummary(models.Model):
+    """
+    Modelo para almacenar estadísticas mensuales de transacciones.
+    """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='monthly_summaries'
+    )
+    year = models.IntegerField()
+    month = models.IntegerField()
+    total_income = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total_expense = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'year', 'month')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.month}/{self.year}"
