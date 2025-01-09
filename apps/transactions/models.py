@@ -35,10 +35,7 @@ class Transaction(models.Model):
     category = models.CharField(
         max_length=50
     )
-    amount = models.DecimalField(
-        max_digits=10,
-        decimal_places=2
-    )
+    amount = models.IntegerField()
     description = models.TextField(
         blank=True,
         null=True
@@ -72,9 +69,9 @@ class MonthlySummary(models.Model):
     )
     year = models.IntegerField()
     month = models.IntegerField()
-    total_income = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    total_expense = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total_income = models.IntegerField()
+    total_expense = models.IntegerField()
+    balance = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

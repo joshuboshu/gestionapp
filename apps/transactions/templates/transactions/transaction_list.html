@@ -73,15 +73,50 @@
         {% include 'transactions/transaction_table.html' %}
     </div>
 </div>
+<!-- Historial de meses -->
+<div class="space-y-6 mt-8">
+    <h2 class="text-xl font-bold text-gray-900">Historial Mensual</h2>
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+            <thead>
+                <tr>
+                    <th class="py-2 px-4 text-left text-sm font-medium text-gray-500 border-b">Año</th>
+                    <th class="py-2 px-4 text-left text-sm font-medium text-gray-500 border-b">Mes</th>
+                    <th class="py-2 px-4 text-left text-sm font-medium text-gray-500 border-b">Ingresos</th>
+                    <th class="py-2 px-4 text-left text-sm font-medium text-gray-500 border-b">Gastos</th>
+                    <th class="py-2 px-4 text-left text-sm font-medium text-gray-500 border-b">Balance</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for month in historical_data %}
+                <tr>
+                    <td class="py-2 px-4 border-b">{{ month.year }}</td>
+                    <td class="py-2 px-4 border-b">{{ month.month }}</td>
+                    <td class="py-2 px-4 border-b text-green-600">₲ {{ month.total_income }}</td>
+                    <td class="py-2 px-4 border-b text-red-600">₲ {{ month.total_expense }}</td>
+                    <td class="py-2 px-4 border-b text-gray-900">₲ {{ month.balance }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
-<canvas id="monthlyTrends" width="400" height="200"></canvas>
+<!-- Sección de gráficos -->
+<div class="mt-8">
+    <h2 class="text-xl font-bold text-gray-900">Tendencias Mensuales</h2>
+    <canvas id="monthlyTrends" width="400" height="200" class="mt-4"></canvas>
+</div>
+
 <script>
+    // Datos del gráfico
     const ctx = document.getElementById('monthlyTrends').getContext('2d');
     const data = {{ historical_data|safe }};
     const labels = data.map(item => `${item.year}-${item.month}`);
     const incomeData = data.map(item => item.total_income);
     const expenseData = data.map(item => item.total_expense);
 
+    // Generar el gráfico con Chart.js
     new Chart(ctx, {
         type: 'line',
         data: {
@@ -91,15 +126,26 @@
                     label: 'Ingresos',
                     data: incomeData,
                     borderColor: 'green',
-                    fill: false,
+                    backgroundColor: 'rgba(0, 255, 0, 0.1)',
+                    fill: true,
                 },
                 {
                     label: 'Gastos',
                     data: expenseData,
                     borderColor: 'red',
-                    fill: false,
+                    backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                    fill: true,
                 },
             ],
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true, position: 'top' },
+            },
+            scales: {
+                y: { beginAtZero: true },
+            },
         },
     });
 </script>
