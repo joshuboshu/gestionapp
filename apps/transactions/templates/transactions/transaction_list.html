@@ -91,7 +91,7 @@
                 {% for month in historical_data %}
                 <tr>
                     <td class="py-2 px-4 border-b">{{ month.year }}</td>
-                    <td class="py-2 px-4 border-b">{{ month.month }}</td>
+                    <td class="py-2 px-4 border-b">{{ month.month_name }}</td>
                     <td class="py-2 px-4 border-b text-green-600">₲ {{ month.total_income }}</td>
                     <td class="py-2 px-4 border-b text-red-600">₲ {{ month.total_expense }}</td>
                     <td class="py-2 px-4 border-b text-gray-900">₲ {{ month.balance }}</td>
@@ -107,46 +107,145 @@
     <h2 class="text-xl font-bold text-gray-900">Tendencias Mensuales</h2>
     <canvas id="monthlyTrends" width="400" height="200" class="mt-4"></canvas>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+    <!-- Gráfico de tendencias -->
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Tendencias Mensuales</h2>
+        <canvas id="monthlyTrends"></canvas>
+    </div>
+
+    <!-- Gráfico de distribución de gastos -->
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Distribución de Gastos</h2>
+        <canvas id="expenseDistribution"></canvas>
+    </div>
+</div>
+
+<!-- Estadísticas adicionales -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Promedios Mensuales</h3>
+        <p class="text-sm text-gray-600">Ingreso: ₲ {{ stats.avg_income|floatformat:0 }}</p>
+        <p class="text-sm text-gray-600">Gasto: ₲ {{ stats.avg_expense|floatformat:0 }}</p>
+    </div>
+    
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Mes con Mayor Ingreso</h3>
+        <p class="text-sm text-gray-600">{{ stats.max_income_month.month_name }} {{ stats.max_income_month.year }}</p>
+        <p class="text-sm text-gray-600">₲ {{ stats.max_income_month.total_income|floatformat:0 }}</p>
+    </div>
+    
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Mes con Mayor Gasto</h3>
+        <p class="text-sm text-gray-600">{{ stats.max_expense_month.month_name }} {{ stats.max_expense_month.year }}</p>
+        <p class="text-sm text-gray-600">₲ {{ stats.max_expense_month.total_expense|floatformat:0 }}</p>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    // Datos del gráfico
-    const ctx = document.getElementById('monthlyTrends').getContext('2d');
-    const data = {{ historical_data|safe }};
-    const labels = data.map(item => `${item.year}-${item.month}`);
-    const incomeData = data.map(item => item.total_income);
-    const expenseData = data.map(item => item.total_expense);
+    // Datos para los gráficos
+    const chartData = {{ chart_data|safe }};
+    const expenseDistribution = {{ expense_distribution|safe }};
 
-    // Generar el gráfico con Chart.js
-    new Chart(ctx, {
+    // Configuración de colores
+    const colors = {
+        income: 'rgba(34, 197, 94, 0.2)',
+        expense: 'rgba(239, 68, 68, 0.2)',
+        balance: 'rgba(59, 130, 246, 0.2)',
+        borderIncome: 'rgb(34, 197, 94)',
+        borderExpense: 'rgb(239, 68, 68)',
+        borderBalance: 'rgb(59, 130, 246)'
+    };
+
+    // Gráfico de tendencias mensuales
+    new Chart(document.getElementById('monthlyTrends'), {
         type: 'line',
         data: {
-            labels: labels,
+            labels: chartData.labels,
             datasets: [
                 {
                     label: 'Ingresos',
-                    data: incomeData,
-                    borderColor: 'green',
-                    backgroundColor: 'rgba(0, 255, 0, 0.1)',
+                    data: chartData.income,
+                    backgroundColor: colors.income,
+                    borderColor: colors.borderIncome,
                     fill: true,
                 },
                 {
                     label: 'Gastos',
-                    data: expenseData,
-                    borderColor: 'red',
-                    backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                    data: chartData.expense,
+                    backgroundColor: colors.expense,
+                    borderColor: colors.borderExpense,
                     fill: true,
                 },
-            ],
+                {
+                    label: 'Balance',
+                    data: chartData.balance,
+                    backgroundColor: colors.balance,
+                    borderColor: colors.borderBalance,
+                    fill: true,
+                }
+            ]
         },
         options: {
             responsive: true,
             plugins: {
-                legend: { display: true, position: 'top' },
+                legend: { position: 'top' },
+                title: { display: false }
             },
             scales: {
-                y: { beginAtZero: true },
-            },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => '₲ ' + value.toLocaleString()
+                    }
+                }
+            }
+        }
+    });
+
+    // Gráfico de distribución de gastos
+    new Chart(document.getElementById('expenseDistribution'), {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(expenseDistribution),
+            datasets: [{
+                data: Object.values(expenseDistribution),
+                backgroundColor: [
+                    'rgba(34, 197, 94, 0.2)',
+                    'rgba(239, 68, 68, 0.2)',
+                    'rgba(59, 130, 246, 0.2)',
+                    'rgba(168, 85, 247, 0.2)',
+                    'rgba(251, 146, 60, 0.2)',
+                    'rgba(236, 72, 153, 0.2)'
+                ],
+                borderColor: [
+                    'rgb(34, 197, 94)',
+                    'rgb(239, 68, 68)',
+                    'rgb(59, 130, 246)',
+                    'rgb(168, 85, 247)',
+                    'rgb(251, 146, 60)',
+                    'rgb(236, 72, 153)'
+                ],
+                borderWidth: 1
+            }]
         },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'right' },
+                tooltip: {
+                    callbacks: {
+                        label: context => {
+                            const value = context.raw;
+                            return `₲ ${value.toLocaleString()}`;
+                        }
+                    }
+                }
+            }
+        }
     });
 </script>
 
