@@ -1,18 +1,21 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.views.generic import CreateView
 from django.urls import reverse_lazy
 from .models import Transaction
 from django.contrib.auth.decorators import login_required
 from .forms import TransactionForm
+from django.db.models import Sum
+from datetime import date
 
 
 @login_required
 def transaction_list(request):
     """
-    Vista basada en función para listar transacciones.
+    Vista para listar transacciones y calcular métricas financieras.
 
-    Recupera las transacciones asociadas al usuario autenticado y las ordena
-    por fecha de manera descendente. Si la solicitud proviene de HTMX, renderiza
+    Recupera las transacciones asociadas al usuario autenticado para el mes actual 
+    y las ordena por fecha de manera descendente. Calcula el total de ingresos, 
+    gastos y el balance mensual. Si la solicitud proviene de HTMX, renderiza 
     únicamente la tabla de transacciones; de lo contrario, renderiza toda la página.
 
     Args:
@@ -21,21 +24,44 @@ def transaction_list(request):
     Returns:
         HttpResponse: Respuesta HTTP con la lista de transacciones renderizada.
     """
-    transactions = Transaction.objects.filter(user=request.user).order_by('-date')
+    today = date.today()
+
+    # Filtrar transacciones por usuario y mes actual
+    transactions = Transaction.objects.filter(
+        user=request.user,
+        date__year=today.year,
+        date__month=today.month
+    ).order_by('-date')
+
+    # Calcular métricas financieras
+    total_income = transactions.filter(type="income").aggregate(total=Sum("amount"))["total"] or 0
+    total_expense = transactions.filter(type="expense").aggregate(total=Sum("amount"))["total"] or 0
+    balance = total_income - total_expense
+
+    # Verificar si la solicitud es HTMX
     if request.headers.get('HX-Request'):
-        # Renderiza solo la tabla si es una solicitud HTMX
         return render(
             request,
             'transactions/transaction_table.html',
-            {'transactions': transactions}
+            {
+                'transactions': transactions,
+                'total_income': total_income,
+                'total_expense': total_expense,
+                'balance': balance,
+            }
         )
-    # Renderiza toda la página
+
+    # Renderizar la página completa
     return render(
         request,
         'transactions/transaction_list.html',
-        {'transactions': transactions}
+        {
+            'transactions': transactions,
+            'total_income': total_income,
+            'total_expense': total_expense,
+            'balance': balance,
+        }
     )
-
 
 class TransactionCreateView(CreateView):
     """
